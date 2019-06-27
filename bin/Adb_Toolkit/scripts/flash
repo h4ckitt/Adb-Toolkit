@@ -1,0 +1,119 @@
+#!/bin/bash
+
+adb start-server 2>/dev/null
+  adb devices>/tmp/devices.txt
+  sed -i '1d' /tmp/devices.txt
+  read -r stat < /tmp/devices.txt
+  if [ "$stat" == "" ]; then
+    zenity --error --text="No devices connected" --title="No device" >/dev/null 2>&1
+  else
+  dl=$(sed 's/\device//g' /tmp/devices.txt)
+  device=$(zenity --list --text="Choose a device" --column="Devices" $dl 2>/dev/null)
+
+if  [ "$?" -eq 1 ]; then
+
+  zenity --error --text="Operation cancelled" --title="Aborted" >/dev/null 2>&1
+    exit 1
+
+  elif [ "$device" == "" ] ; then
+
+  zenity --error --text="No device selected \n\n Aborting Operation" --title="Aborted" >/dev/null 2>&1
+
+  exit 1
+ 
+ else
+
+if [ "$1" == "" ] 
+then
+    zenity --error --text="Run this file from the main script" --title="Invalid run location" >/dev/null 2>&1
+
+elif [ "$1" == "flash_recovery" ]
+then
+(
+    echo "10" ; sleep 1
+    echo "# Waiting to detect device" ; sleep 1
+    adb -s $device wait-for-device
+    echo "# Device detected" ; sleep 1
+    echo "50" ; sleep 1
+    echo "# Rebooting Device to bootloader" ; sleep 1
+    adb -s $device reboot-bootloader
+    echo "60" ; sleep 1
+    echo "# Device rebooted to bootloader" ; sleep 1
+    echo "65" ; sleep 1
+    img=$(zenity --file-selection --file-filter="Img | *.img" 2>/dev/null)
+
+        if  [ "$img" == "" ]; then
+        zenity --error --text="No image selected \n\n exiting" >/dev/null 2>&1
+        echo "# aborted"
+        fastboot reboot
+        exit 0
+    else
+
+    echo "# Flashing recovery" ; sleep 1    
+    echo "72" ;sleep 1
+    fastboot -i 0x0421 flash $img
+    echo "80" ; sleep 1
+    echo "# Finished flashing file"
+    echo "95" ; sleep 1
+    echo "# Finishing up"
+    echo "100"
+    echo "# Done"
+    fi
+    
+) | (zenity --progress \
+  --title="Rebooting Device" \
+  --text="Test" \
+  --percentage=0
+  2>/dev/null)
+
+  if [ "$?" = -1 ] ; then
+        zenity --error \
+          --text="Operation Cancelled." >/dev/null 2>&1
+    fi
+
+elif    [ "$1" == "flash_boot" ]; then
+(
+    echo "10" ; sleep 1
+    echo "# Waiting to detect device" ; sleep 1
+    adb -s $device wait-for-device
+    echo "# Device detected" ; sleep 1
+    echo "50" ; sleep 1
+    echo "# Rebooting Device to bootloader" ; sleep 1
+    adb -s $device reboot-bootloader
+    echo "60" ; sleep 1
+    echo "# Device rebooted to bootloader" ; sleep 1
+    echo "65" ; sleep 1
+    img=$(zenity --file-selection --file-filter="Img | *.img" 2>/dev/null)
+
+        if  [ "$img" == "" ]; then
+        zenity --error --text="No image selected \n\n exiting" >/dev/null 2>&1
+        echo "# aborted"
+        fastboot reboot
+        exit 0
+    else
+
+    echo "# Flashing recovery" ; sleep 1    
+    echo "72" ;sleep 1
+    fastboot -i 0x0421 boot $img
+    echo "80" ; sleep 1
+    echo "# Booting into recovery"
+    echo "95" ; sleep 1
+    echo "# Finishing up"
+    echo "100"
+    echo "# Done"
+    fi
+    
+) | (zenity --progress \
+  --title="Rebooting Device" \
+  --text="Test" \
+  --percentage=0
+  2>/dev/null)
+
+  if [ "$?" = -1 ] ; then
+        zenity --error \
+          --text="Operation Cancelled." >/dev/null 2>&1
+    fi
+
+fi
+fi
+fi

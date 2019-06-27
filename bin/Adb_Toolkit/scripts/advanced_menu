@@ -1,0 +1,49 @@
+#!/bin/bash 
+
+while :
+do
+
+  clear
+
+  echo 
+  echo "============================================================"
+  echo "               Adb Toolkit - by dharmy ()"
+  echo "============================================================"
+  echo
+  echo "> ADVANCED OPTIONS"
+  echo
+  echo " 11 - Get apk from installed application" 
+  echo " 12 - Disable Heads Up Notifications"
+  echo " 13 - Enable Heads up Notifications"
+  echo " 14 - Remove screenlock (Works only for rooted devices)"
+  echo " 15 - Change device DPI"
+  echo " 16 - View Device DPI" 
+  echo " 17 - Backup Device Storage"
+  echo " x  - Change Font"
+  echo
+  echo "  0 - BACK TO MAIN MENU"
+  echo
+  echo -n "Enter option: "
+    TTY=$(/usr/bin/tty)
+  exec 3<&0 < $TTY  
+  read -r opt 0<&3
+
+  if    [ "$?" != 1 ] ; then
+
+    case $opt in
+      11) /usr/share/Adb_Toolkit/scripts/apk extract;; 
+      12) /usr/share/Adb_Toolkit/scripts/heads_up disable;; 
+      13) /usr/share/Adb_Toolkit/scripts/heads_up enble;;
+      14) /usr/share/Adb_Toolkit/scripts/add_busybox_run_parts show_help;;  
+      15) /usr/share/Adb_Toolkit/scripts/dpi change;; 
+      16) /usr/share/Adb_Toolkit/scripts/dpi view;;
+      17) /usr/share/Adb_Toolkit/scripts/backup backup;;
+      18) /usr/share/Adb_Toolkit/scripts/run_plugins;;
+      99) /usr/share/Adb_Toolkit/scripts/build_rom;;
+      0)  clear; exit 1;;
+      x) /usr/share/Adb_Toolkit/scripts/font_change change_font;;
+      *) /usr/share/Adb_Toolkit/scripts/invalid_option; continue;;
+    esac
+  fi
+done
+

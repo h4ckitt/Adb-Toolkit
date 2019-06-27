@@ -1,0 +1,64 @@
+#!/bin/bash
+
+RED='\033[1;31m'
+
+if ! [ `command -v zenity` ]; then
+  echo -e "${RED} Error: Zenity is required to run this software \n Please use "apt install zenity" and run this program again"
+  exit 1
+elif ! [ `command -v adb` ] ; then
+  zenity --error --text="<span font='12'> Adb is required to run this program \n\n Please install adb and run this program again</span>" --title="Missing dependency" --width=300 >/dev/null 2>&1 
+  exit 1
+fi
+
+if [ $(id -u) != 0 ]; then
+	zenity --error --text="<span font='12'> Please run this installer as superuser</span>" --title="Not root" --width=200 2>/dev/null
+	exit 1
+fi
+
+zenity --info --text="<span font='12'> ADB installer </span> \n\nThis program does not come with any warranty of any kind so if your microwave takes your home hostage or your dog pees in your food\n\n<span font='13'> I WILL LAUGH AT YOU</span>" --title="Disclaimer" --width=700 2>/dev/null
+
+prwd=`pwd`
+
+(
+	echo "# Copying program files"; sleep 4
+	cp -r $prwd/bin/Adb_Toolkit /usr/share/Adb_Toolkit
+	echo "20"
+	echo "# making toolkit accessible from path";sleep 4
+	cp $prwd/bin/toolkit /bin/
+	echo "50"
+	echo "# Validating program files"
+	if ! [ -d /usr/share/Adb_Toolkit/ ] && [ -f /usr/share/Adb_Toolkit/Adb-Toolkit ]; then
+		zenity --error --text="Installation Aborted \n\nProgram files couldn't be validated" --title="Abort" --width=500 2>/dev/null
+		exit 0
+	else		
+		echo "Program files validated"; sleep 4
+		echo "75"
+		echo "# Validating toolkit" ; sleep 2
+		if ! [ -f /bin/toolkit ] && [ "`tail -n 1 /bin/toolkit`" == "exec /usr/share/Adb_Toolkit/Adb-Toolkit" ]; then
+			zenity --error --text="Installation Aborted \n\nToolkit couldn't be validated" --title="Abort" --width=500 2>/dev/null
+			exit 1
+		else
+			echo "# Toolkit validated" ; sleep 3
+			echo "80"
+			echo "# Making toolkit executable"
+			chmod +x /bin/toolkit
+			chmod +x /usr/share/Adb_Toolkit/Adb-Toolkit
+			for i in /usr/share/Adb_Toolkit/scripts/* 
+				do 
+					chmod +x $i
+				done
+			echo "85"
+			echo "# Finishing installation" ; sleep 5
+			echo "99" ; sleep 2
+			echo "# Done"
+			echo "100"
+		fi
+	fi
+
+		) | zenity \
+			--progress \
+			--pulsate \
+			--text="Initializing" \
+			--title="Installing" \
+			--width=250 \
+			2>/dev/null

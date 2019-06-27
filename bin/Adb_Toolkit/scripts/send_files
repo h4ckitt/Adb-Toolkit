@@ -1,0 +1,156 @@
+#! /bin/bash 
+pick(){
+eval y=/storage
+  type=$1
+while :
+do
+x=()
+if [ "$type" == "dir" ]; then
+    adb shell "cd $y && ls -d */" > /tmp/tree    
+    tr '\n' '|' < /tmp/tree > /tmp/text
+    while read -r files || [[ -n $files ]]; do
+        IFS='|'; for i in $files; do
+            x+=("$i")
+        done
+    done < /tmp/text
+else
+    adb shell "cd $y && ls" > /tmp/tree    
+    tr '\n' '|' < /tmp/tree > /tmp/text
+    while read -r files || [[ -n $files ]]; do
+        IFS='|'; for i in $files; do
+            x+=("$i")
+        done
+    done < /tmp/text  
+fi
+tmp=$(mktemp -u --tmpdir opt.XXXX)
+yad --center --list --title="File Browser" --column="Pick A File" .. "${x[@]}" --select-action 'echo %s' > "$tmp" --button="gtk-cancel:2" --button="Select!gtk-ok:1" --width=500 --height=500 2>/dev/null
+ch=$?
+z=$(sed -n -e "$(wc -l < "$tmp")p" "$tmp")
+rm "$tmp"
+z=$(tr -d '|' <<<"$z")
+if [ "$z" == ".." ]; then
+        z+=/
+fi
+z=$(printf '%q' "$z")
+if [ "$(echo "${z: -1}")" != "/" ]; then
+eval y+="/""$z"
+else
+    eval y+="$z"
+fi
+if [ $ch -eq 1 ]; then
+    if [ "$type" == "fl" ]; then
+    adb pull $y
+fi    
+    break
+elif [ $ch -eq 2 ]; then      
+    break
+fi
+done
+rm /tmp/tree
+rm /tmp/text 
+}
+adb start-server 2>/dev/null
+  adb devices>/tmp/devices.txt
+  sed -i '1d' /tmp/devices.txt
+  read -r stat < /tmp/devices.txt
+  if [ "$stat" == "" ]; then
+    zenity --error --text="No devices connected" --title="No device" >/dev/null 2>&1
+  else
+  dl=$(sed 's/\device//g' /tmp/devices.txt)
+  device=$(zenity --list --text="Choose a device" --column="Devices" $dl 2>/dev/null)
+
+if  [ "$?" -eq 1 ]; then
+
+  zenity --error --text="Operation cancelled" --title="Aborted" >/dev/null 2>&1
+    exit 1
+
+  elif [ "$device" == "" ] ; then
+
+  zenity --error --text="No device selected \n\n Aborting Operation" --title="Aborted" >/dev/null 2>&1
+
+  exit 1
+ 
+ else
+
+if  [ "$1" == "" ]; then
+zenity --error --text="Run this file from the main script" --title="Invalid run location" >/dev/null 2>&1
+
+elif    [ "$1" == "all_files" ]; then
+
+ (
+    echo "10" ; sleep 1
+    echo "# Detecting Device" ; sleep 1
+    adb wait-for-device
+    echo "20" ; sleep 1
+    echo "# Device detected" ; sleep 2
+    echo "# Opening file browser" ; sleep 1
+    file=$(zenity --file-selection --file-filter="All Files | *.*" 2>/dev/null)
+    if [ "$?" -eq 1 ]; then
+    zenity --error --text="Cancelled by user \n\n Aborting Operation" >/dev/null 2>&1
+    echo "# Aborted"
+    exit 1
+    
+    else
+
+    echo "50" ; sleep 1
+    echo "# Sending file to device" ; sleep 1
+    adb -s $device push "$file" /sdcard/
+    echo "# Finishing up"
+    echo "70" ; sleep 4
+    echo "# Done"
+    echo "100" 
+    exit 0
+    fi
+
+ ) | (zenity --progress \
+  --title="Send File" \
+  --text="Initializing" \
+  --percentage=0 \
+   2>/dev/null )
+
+  if [ "$?" = -1 ] ; then
+        zenity --error \
+          --text="Operation Cancelled." >/dev/null 2>&1
+    fi 
+
+elif  [ "$1" == "directory" ]; then
+(
+    echo "10" ; sleep 1
+    echo "# Detecting Device" ; sleep 1
+    adb wait-for-device
+    echo "20" ; sleep 1
+    echo "# Device detected" ; sleep 2
+    echo "# Opening file browser" ; sleep 1
+    dir=$(zenity --file-selection --directory 2>/dev/null)
+
+    if  [ "$?" -eq 1 ]; then
+
+    zenity --error --text="No folder selected \n\n Aborting operation" --title="No file selected" >/dev/null 2>&1
+    echo "# Operation Aborted"
+    exit 1
+
+    else
+
+    echo "50" ; sleep 1
+    echo "# Sending folder to device" ; sleep 1
+    adb -s $device push "$dir" /sdcard/
+    echo "# Finishing up"
+    echo "70" ; sleep 4
+    echo "# Done"
+    echo "100" 
+     exit 0
+   fi
+) | (zenity --progress \
+  --title="Send File" \
+  --text="Initializing" \
+  --percentage=0 \
+  2>/dev/null)
+
+if [ "$?" -eq -1 ] ; then
+        zenity --error \
+          --text="Operation Cancelled." >/dev/null 2>&1
+    fi
+
+  fi
+fi
+fi

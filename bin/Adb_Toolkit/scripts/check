@@ -1,0 +1,9 @@
+#!/bin/bash
+
+RED='\033[1;31m'
+
+if [ `command -v zenity` ]; then
+	echo -e "${RED} Error: Zenity is required to run this software \n Please install zenity and run this program again"
+elif [ `command -v adb` ] ; then
+	zenity --error --text="<span font='12'> Adb is required to run this program \n\n Please install adb and run this program again</span>" --title="Missing dependency" --width=300 >/dev/null 2>&1 
+fi

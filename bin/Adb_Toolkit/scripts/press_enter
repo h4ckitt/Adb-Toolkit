@@ -1,0 +1,15 @@
+#!/bin/bash
+############################################################################
+#																		   #	
+# Copyright (c) 2018 - dharmy (dammysteve10@gmail.com)					   #	
+#																	       #
+# Adb-Toolkit is 100% free.  This script file is intended for personal     #
+# and/or educational use only.  It may not be duplicated for monetary      #
+# benefit or any other purpose without the permission of the developer.    #
+#																		   #	
+############################################################################
+
+echo
+echo "Press Enter to continue"
+read enterKey  
+

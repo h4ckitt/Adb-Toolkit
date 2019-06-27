@@ -1,0 +1,79 @@
+#!/bin/bash 
+
+
+adb start-server 2>/dev/null
+  adb devices>/tmp/devices.txt
+  sed -i '1d' /tmp/devices.txt
+  read -r stat < /tmp/devices.txt
+  if [ "$stat" == "" ]; then
+    zenity --error --text="No devices connected" --title="No device" >/dev/null 2>&1
+  else
+  dl=$(sed 's/\device//g' /tmp/devices.txt)
+  device=$(zenity --list --text="Choose a device" --column="Devices" $dl 2>/dev/null)
+
+if  [ "$?" -eq 1 ]; then
+
+  zenity --error --text="Operation cancelled" --title="Aborted" >/dev/null 2>&1
+    exit 1
+
+  elif [ "$device" == "" ] ; then
+
+  zenity --error --text="No device selected \n\n Aborting Operation" --title="Aborted" >/dev/null 2>&1
+
+  exit 1
+ 
+ else
+
+if  [ "$1" == "" ]; then
+zenity --error --text="Run this file from the main script" --title="Invalid run location" >/dev/null 2>&1
+
+elif    [ "$1" == "view" ]; then
+
+adb -s $device wait-for-device
+
+dpi=$(adb -s $device shell wm density)
+
+zenity --info --text="$dpi" --title=DPI --width=200 >/dev/null 2>&1
+
+exit 0
+
+elif  [ "$1" == "change" ]; then
+
+while :
+  do
+re='^[0-9]+$'
+adb -s $device wait-for-device 
+dpi=$(zenity \
+      --entry \
+      --text="Density Value:" \
+      --entry-text=73 \
+      --title="DPI Value" \
+      --height=200 \
+      2>/dev/null
+      )
+
+      if  [ "$?" != "0" ]; then
+
+        zenity --error --text="Aborted" --title="Aborted" >/dev/null 2>&1
+        exit 0
+        else
+  
+  if [ "$dpi" == "" ]; then
+  zenity --error --text="DPI value cannot be empty" >/dev/null 2>&1
+
+elif  ! [[  $dpi =~ $re ]]; then
+  zenity --error --text="DPI has to be a number" >/dev/null 2>&1
+elif  [ $(($dpi)) -lt 72 ] ; then
+  zenity --error --text="DPI cannot be less than 72" >/dev/null 2>&1
+
+  else
+
+  adb -s $device shell wm density $dpi
+  zenity --info --text="Changed device density to $dpi" --width=200 >/dev/null 2>&1
+  exit 0
+ fi
+ fi
+ done
+ fi
+ fi
+fi

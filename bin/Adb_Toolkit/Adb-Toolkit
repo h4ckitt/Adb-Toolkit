@@ -1,0 +1,79 @@
+#!/bin/bash 
+
+RED='\033[1;31m'
+
+if ! [ `command -v zenity` ]; then
+  echo -e "${RED} Error: Zenity is required to run this software \n Please install zenity and run this program again"
+  exit 1
+elif ! [ `command -v adb` ] ; then
+  zenity --error --text="<span font='12'> Adb is required to run this program \n\n Please install adb and run this program again</span>" --title="Missing dependency" --width=300 >/dev/null 2>&1 
+  exit 1
+fi
+
+if [ $(id -u) != 0 ]; then
+zenity --info --text="Incase you encounter any problems with your username not being in plugdev group, it is advised you run this program as root" --width=700 >/dev/null 2>&1
+fi
+ while :
+ do
+
+  
+
+clear
+
+  echo 
+  echo "============================================================"
+  echo "               Adb Toolkit - by dharmy ()"
+  echo "============================================================"
+  echo 
+  echo "> MAIN MENU"
+  echo
+  echo "  1 - Send Zip to Device "
+  echo "  2 - Install APK"
+  echo "  3 - Send Files to device"
+  echo "  4 - Reboot Device"
+  echo "  5 - Reboot Device to Recovery"
+  echo "  6 - Reboot Device to Bootloader"
+  echo "  7 - Flash Recovery"
+  echo "  8 - Flash and Boot Recovery" 
+  echo "  9 - Send Folder"
+  echo
+  echo "  10- ADVANCED OPTIONS"
+  echo
+  echo "  s - Drop to shell"
+  echo "  u - Adb-Toolkit Info/Donate"
+  echo "  x - Exit"
+  echo
+  echo -n "Enter Option ==> "
+  
+  TTY=$(/usr/bin/tty)
+  exec 3<&0 < $TTY  
+  read -r opt 0<&3
+
+#if [ "$opt" != "x" ] && [ "$opt" != "u" ]
+ # then
+  #  echo "not x"
+  #fi 
+  
+  if [ "$?" != "1" ]
+  then
+    case $opt in
+    1) /usr/share/Adb_Toolkit/scripts/send_zip; continue;;
+    2) /usr/share/Adb_Toolkit/scripts/apk install; continue;;
+    3) /usr/share/Adb_Toolkit/scripts/send_files all_files; continue;;
+    4) /usr/share/Adb_Toolkit/scripts/reboot reboot_os; continue;;
+    5) /usr/share/Adb_Toolkit/scripts/reboot reboot_recovery; continue;;
+    6) /usr/share/Adb_Toolkit/scripts/reboot reboot_bootloader; continue;;
+    7) /usr/share/Adb_Toolkit/scripts/flash flash_recovery; continue;;
+    8) /usr/share/Adb_Toolkit/scripts/flash flash_boot; continue;;
+    9) /usr/share/Adb_Toolkit/scripts/send_files directory; continue;;
+    10) /usr/share/Adb_Toolkit/scripts/advanced_menu; continue;;
+    s) /usr/share/Adb_Toolkit/scripts/shell; continue;;
+    u) /usr/share/Adb_Toolkit/scripts/about ; continue;;
+    x) clear; adb kill-server 2>/dev/null; echo; echo "Goodbye.";echo;exit 1;;
+    *) /usr/share/Adb_Toolkit/scripts/invalid_option; continue;;
+    esac 
+   
+    fi
+    /usr/share/Adb_Toolkit/scripts/press_enter
+  
+    done

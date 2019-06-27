@@ -1,0 +1,153 @@
+#!/bin/bash 
+
+count=0
+iteration=0
+
+finished(){
+	zenity --info --text="Font changing finished \n\nDo you want to reboot your device to see changes?" --title="Operation Finished" --width=300 2>/dev/null
+	if [ "$?" != "0" ] ; then
+		zenity --info --text="Have fun with your new font" --title="Finis" --width=200 >/dev/null 2>&1
+		return
+	else
+		adb -s $device reboot
+		zenity --info --text="Device rebooted \n\nEnjoy your new font." --title="finis" --width=200 >/dev/null 2>&1
+		return
+fi
+	}
+
+error_handler(){
+	zenity --error --text="$reason" --title="Error" --width=200 >/dev/null 2>&1
+}
+
+change_font(){
+			(
+    echo "10" ; sleep 1
+    echo "# Detecting Device" ; sleep 1
+    adb -s $device wait-for-device
+    echo "20" ; sleep 1
+    echo "# Device detected" ; sleep 1
+    echo "50" ; sleep 1   
+    echo "# Checking for root access on device" ; sleep 1
+    echo "su" | adb shell > /tmp/is_root 2>&1
+    read -r root < /tmp/is_root
+    if [ "$root" != "" ]; then
+    	reason="Root access wasn't found \n\nPlease make sure you grant ADB root access if your device is rooted"
+    	error_handler    	
+    	echo "# Aborted"
+    	exit 1
+
+    else
+    	echo "# Root access confirmed"; sleep 1
+    	echo "55" ; sleep 1
+    	zenity --info --text="Choose the  $type type of the font" --title="Choose type" --width=200 2>/dev/null
+    	if [ "$?" != "0" ] ; then
+    		reason="User aborted the operation"
+    		error_handler
+    		echo "# Aborted"type
+    		exit 1
+    	fi
+    	echo "# Opening file browser"
+    	 echo "59" ; sleep 1
+    	font=$(zenity --file-selection --file-filter="Font File | *.ttf" 2>/dev/null)
+    	if [ "$?" != "0" ] ; then
+    		reason="User Aborted the operation" 
+    		error_handler    		
+    		echo "# Aborted"
+    		exit 1
+    	fi    	
+      	if [ $font != "" ]; then
+      		fontname="${font##*/}" 
+      		echo "# Remounting system partition"
+      		echo "mount -o remount,rw /system" | adb -s $device shell
+      		echo "# Backing up original font file" ; sleep 5
+      		echo "60" ; sleep 1
+      		echo "mv /system/fonts/$fname.ttf /system/fonts/$fname.bak" | adb -s $device shell 
+      		echo "# Changing device font" ; sleep 1
+      		echo "70" ; sleep 5
+      		adb -s $device push $font /sdcard/
+      		sleep 5
+      		echo "mv /sdcard/$fontname /system/fonts/$fname.ttf" | adb -s $device shell
+      		echo "chmod 644 /system/fonts/$fname.ttf" | adb -s $device shell
+      		echo "# Font Changed" ; sleep 2
+      		if [ "$iteration" != "$count" ] ; then
+      		return
+      		fi  
+      		echo "# Done"
+      		echo "100"
+      		
+      		else
+      			reason="No font selected, aborting operation"
+      			error_handler
+      			echo "# Aborted"
+      			exit 0
+      		fi      	
+      	fi
+      	) | zenity \
+            --progress \
+            --title="Changing Font" \
+            --text="Initializing" \
+            --percentage=0 \
+            --pulsate \
+            --width=300 \
+            --auto-close 2>/dev/null
+
+            if [ "$?" != "0" ]; then
+            	reason="User aborted the operation"
+            	error_handler            	
+            	exit 1
+            fi
+}
+
+if [ "$1" == "" ]; then
+	zenity --error --text="Run this file from the main script" --title="Invalid run location" >/dev/null 2>&1
+
+elif  [ "$1" == "change_font" ]; then
+
+  adb start-server 2>/dev/null
+  adb devices>/tmp/devices.txt
+  sed -i '1d' /tmp/devices.txt
+  read -r stat < /tmp/devices.txt
+  if [ "$stat" == "" ]; then
+    zenity --error --text="No devices connected" --title="No device" >/dev/null 2>&1
+  else
+  dl=$(sed 's/\device//g' /tmp/devices.txt)
+  device=$(zenity --list --text="Choose a device" --column="Devices" $dl 2>/dev/null) 
+
+if  [ "$?" -eq 1 ]; then
+
+  zenity --error --text="Operation cancelled" --title="Aborted" >/dev/null 2>&1
+    exit 1
+
+    elif [ "$device" == "" ]; then
+      zenity --error --text="No device selected \n\n Aborting operation" --title="Aborted" >/dev/null 2>&1
+      exit 1
+
+      else      
+    	 options=$(zenity --list --checklist --text="Choose the type of font to change" --title="Select font type" --column=Check --column="Selection" FALSE Regular FALSE Italic FALSE Bold FALSE Bold-Italic --width=300 --height=300 --separator=':' 2>/dev/null)
+    	 if [ "$?" != "0" ]; then
+    	 	zenity --error --text="User Aborted Operation" --title="User Abort" --width=300 >/dev/null 2>&1
+    	 	echo "# Aborted"
+    	 	exit 1
+    	 else
+    	 	if [ -z "$options" ] ; then
+    	 		zenity --error --text="No option chosen" --title="error" --width=300 >/dev/null 2>&1
+				echo "# Aborted"
+				exit 1
+				else
+				IFS=":" ; for test in $options; do
+				count=$((count+1))
+				done      			      			
+				IFS=":" ; for opt in $options ; do					
+				case $opt in 
+				Regular) fname="Roboto-Regular" && type="Regular" && change_font;;
+				Italic)  fname="Roboto-Italic" && type="Italic" && change_font;;
+				Bold) fname="Roboto-Bold" && type="Bold" && change_font;;
+				Bold-Italic) fname="Roboto-BoldItalic" && type="Bold-Italic" && change_font;;
+				esac
+			done
+		fi      	
+	fi
+		finished
+  fi
+fi
+fi

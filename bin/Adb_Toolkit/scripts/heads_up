@@ -1,0 +1,51 @@
+#!/bin/bash
+
+adb start-server 2>/dev/null
+  adb devices>/tmp/devices.txt
+  sed -i '1d' /tmp/devices.txt
+  read -r stat < /tmp/devices.txt
+  if [ "$stat" == "" ]; then
+    zenity --error --text="No devices connected" --title="No device" >/dev/null 2>&1
+  else
+  dl=$(sed 's/\device//g' /tmp/devices.txt)
+  device=$(zenity --list --text="Choose a device" --column="Devices" $dl >/dev/null 2>&1)
+
+if  [ "$?" -eq 1 ]; then
+
+  zenity --error --text="Operation cancelled" --title="Aborted" >/dev/null 2>&1
+    exit 1
+
+  elif [ "$device" == "" ] ; then
+
+  zenity --error --text="No device selected \n\n Aborting Operation" --title="Aborted" >/dev/null 2>&1
+
+  exit 1
+ 
+ else
+
+if  [ "$1" == "" ]; then
+zenity --error --text="Run this file from the main script" --title="Invalid run location" >/dev/null 2>&1
+
+elif  [ "$1" == "enble" ]; then
+
+adb -s $device wait-for-device
+
+adb -s $device shell settings put global heads_up_notifications 1
+
+zenity --info --text="Heads up notifications have been enabled" --title="Enabled" >/dev/null 2>&1
+
+exit 0
+
+elif [ "$1" == "disable" ]; then
+
+adb -s $device wait-for-device
+
+adb -s $device shell settings put global heads_up_notifications 0
+
+zenity --info --text="Heads up have been disabled" --title="Disabled" >/dev/null 2>&1
+
+exit 0
+
+fi
+fi 
+fi

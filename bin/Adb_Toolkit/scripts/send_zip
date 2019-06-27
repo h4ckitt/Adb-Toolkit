@@ -1,0 +1,58 @@
+#!/bin/bash 
+
+  adb start-server 2>/dev/null
+  adb devices>/tmp/devices.txt
+  sed -i '1d' /tmp/devices.txt
+  read -r stat < /tmp/devices.txt
+  if [ "$stat" == "" ]; then
+    zenity --error --text="No devices connected" --title="No device" >/dev/null 2>&1
+  else
+  dl=$(sed 's/\device//g' /tmp/devices.txt)
+  device=$(zenity --list --text="Choose a device" --column="Devices" $dl 2>/dev/null)
+
+if  [ "$?" -eq 1 ]; then
+
+  zenity --error --text="Operation cancelled" --title="Aborted" >/dev/null 2>&1
+    exit 1
+
+    elif [ "$device" == "" ]; then
+      zenity --error --text="No device selected \n\n Aborting operation" --title="Aborted" >/dev/null 2>&1
+      exit 1
+
+      else
+
+
+zip=$(zenity \
+--file-selection --file-filter="Zip | *.zip" 2>/dev/null\
+)
+
+
+if [ "$zip" != "" ]
+    then
+    (
+    echo "10" ; sleep 1
+    echo "# Detecting Device" ; sleep 1
+    adb wait-for-device
+    echo "20" ; sleep 1
+    echo "# Device detected" ; sleep 1
+    echo "50" ; sleep 1
+    echo "# Sending file to device" ; sleep 1
+    adb push $zip /sdcard/
+    echo "# Finishing up"
+    echo "70" ; sleep 4
+    echo "# Done"
+    echo "100" 
+   
+    
+) | (zenity --progress \
+  --title="Initializing" \
+  --text="Test" \
+  --percentage=0 \
+    2>/dev/null)
+
+clear 
+    else
+    zenity --error --text="Please select a file" --title="Error" >/dev/null 2>&1
+    fi
+fi
+fi

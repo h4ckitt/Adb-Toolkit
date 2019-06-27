@@ -1,0 +1,10 @@
+#!/bin/bash
+
+(zenity \
+    --warning \
+    --text="Invalid option chosen" \
+    --title="Invalid Option" \
+    ) >/dev/null 2>&1
+
+    clear 
+    

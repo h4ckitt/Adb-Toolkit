@@ -38,7 +38,7 @@ clear
   echo "  9 - Get apk from installed application"
   echo " 10 - Pull File From Device"
   echo
-  echo "  11- ADVANCED OPTIONS"
+  echo " 11 - ADVANCED OPTIONS"
   echo
   echo "  s - Drop to shell"
   echo "  u - Adb-Toolkit Info/Donate"

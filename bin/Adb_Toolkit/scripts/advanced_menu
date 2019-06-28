@@ -31,17 +31,17 @@ do
   if    [ "$?" != 1 ] ; then
 
     case $opt in
-      12) ./scripts/reboot reboot_os;; 
-      13) ./scripts/reboot reboot_recovery;; 
-      14) ./scripts/reboot reboot_bootloader;;
-      15) .scripts/add_busybox_run_parts show_help;;  
-      16) ./scripts/flash flash_recovery;; 
-      17) ./scripts/flash flash_boot;;
-      18) ./scripts/backup backup;;      
+      12) /usr/share/Adb_Toolkit/scripts/reboot reboot_os;; 
+      13) /usr/share/Adb_Toolkit/scripts/reboot reboot_recovery;; 
+      14) /usr/share/Adb_Toolkit/scripts/reboot reboot_bootloader;;
+      15) /usr/share/Adb_Toolkit/scripts/add_busybox_run_parts show_help;;  
+      16) /usr/share/Adb_Toolkit/scripts/flash flash_recovery;; 
+      17) /usr/share/Adb_Toolkit/scripts/flash flash_boot;;
+      18) /usr/share/Adb_Toolkit/scripts/backup backup;;      
       #99) /usr/share/Adb_Toolkit/scripts/build_rom;;
       0)  clear; exit 0;;
-      x) ./scripts/font_change change_font;;
-      *) ./scripts/invalid_option; continue;;
+      x) /usr/share/Adb_Toolkit/scripts/font_change change_font;;
+      *) /usr/share/Adb_Toolkit/scripts/invalid_option; continue;;
     esac
   fi
 done

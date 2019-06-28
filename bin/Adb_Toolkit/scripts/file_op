@@ -1,7 +1,10 @@
-#! /bin/bash -x
+#! /bin/bash
 pick(){
+type=$1
 eval y=/storage
-  type=$1
+if [ "$type" == "dir" ]; then
+  y+="/"
+fi  
 while :
 do
 x=()
@@ -57,7 +60,7 @@ adb start-server 2>/dev/null
     zenity --error --text="No devices connected" --title="No device" --width=300 >/dev/null 2>&1
   else
   dl=$(sed 's/\device//g' /tmp/devices.txt)
-  device=$(zenity --list --text="Choose a device" --column="Devices" --width=300 $dl 2>/dev/null)
+  device=$(zenity --list --text="Choose a device" --column="Devices" --width=300 --height=200 $dl 2>/dev/null)
 
 if  [ "$?" -eq 1 ]; then
 
@@ -90,9 +93,11 @@ elif    [ "$1" == "all_files" ]; then
     echo "# Aborted"
     exit 1    
     else
+    echo "# Opening Device Browser"; sleep 1
+    pick dir
     echo "50" ; sleep 1
     echo "# Sending file to device" ; sleep 1
-    adb -s $device push "$file" /sdcard/
+    adb -s $device push "$file" "$y"
     echo "# Finishing up"
     echo "70" ; sleep 4
     echo "# Done"
@@ -126,9 +131,11 @@ elif  [ "$1" == "directory" ]; then
     echo "# Operation Aborted"
     exit 1
     else
+    echo "Opening Device Browser"; sleep 1
+    pick dir
     echo "50" ; sleep 1
     echo "# Sending folder to device" ; sleep 1
-    adb -s $device push "$dir" /sdcard/
+    adb -s $device push "$dir" "$y"
     echo "# Finishing up"
     echo "70" ; sleep 4
     echo "# Done"
@@ -154,7 +161,7 @@ if [ "$?" -eq -1 ] ; then
     echo "20" ; sleep 1
     echo "# Device detected" ; sleep 2
     echo "# Opening Device file browser" ; sleep 1
-    pick fl
+    pick file
     echo "50" ; sleep 1
     echo "# Opening File Browser" ; sleep 1
     dir=$(zenity --file-selection --directory 2>/dev/null)
@@ -169,7 +176,7 @@ if [ "$?" -eq -1 ] ; then
   --title="Pull File" \
   --text="Initializing" \
   --percentage=0 \
-  --width=300
+  --width=300 \
   2>/dev/null)
 
 if [ "$?" -eq -1 ] ; then

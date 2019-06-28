@@ -36,7 +36,7 @@ clear
   echo "  7 - Disable Heads Up Notifications"
   echo "  8 - Enable Heads Up Notifications" 
   echo "  9 - Get apk from installed application"
-  echo "  10 - Pull File From Device"
+  echo " 10 - Pull File From Device"
   echo
   echo "  11- ADVANCED OPTIONS"
   echo

@@ -4,6 +4,7 @@
     --warning \
     --text="Invalid option chosen" \
     --title="Invalid Option" \
+    --width=300 \
     ) >/dev/null 2>&1
 
     clear 

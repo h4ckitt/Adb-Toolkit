@@ -15,7 +15,7 @@ if [ $(id -u) != 0 ]; then
 	exit 1
 fi
 
-zenity --info --text="<span font='12'> ADB installer </span> \n\nThis program does not come with any warranty of any kind so if your microwave takes your home hostage or your dog pees in your food\n\n<span font='13'> I WILL LAUGH AT YOU</span>" --title="Disclaimer" --width=700 2>/dev/null
+zenity --info --text="<span font='12'> ADB installer </span> \n\nThis program does not come with any warranty of any kind so if your microwave takes your home hostage because you used this software\n\n<span font='13'> I WILL LAUGH AT YOU</span>" --title="Disclaimer" --width=700 2>/dev/null
 
 prwd=`pwd`
 

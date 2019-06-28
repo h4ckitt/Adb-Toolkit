@@ -5,19 +5,19 @@ adb start-server 2>/dev/null
   sed -i '1d' /tmp/devices.txt
   read -r stat < /tmp/devices.txt
   if [ "$stat" == "" ]; then
-    zenity --error --text="No devices connected" --title="No device" >/dev/null 2>&1
+    zenity --error --text="No devices connected" --title="No device" --width=300 >/dev/null 2>&1
   else
   dl=$(sed 's/\device//g' /tmp/devices.txt)
-  device=$(zenity --list --text="Choose a device" --column="Devices" $dl 2>/dev/null)
+  device=$(zenity --list --text="Choose a device" --column="Devices" $dl --width=300 --height=200 2>/dev/null)
 
 if  [ "$?" -eq 1 ]; then
 
-  zenity --error --text="Operation cancelled" --title="Aborted" >/dev/null 2>&1
+  zenity --error --text="Operation cancelled" --title="Aborted" --width=300 >/dev/null 2>&1
     exit 1
 
   elif [ "$device" == "" ] ; then
 
-  zenity --error --text="No device selected \n\n Aborting Operation" --title="Aborted" >/dev/null 2>&1
+  zenity --error --text="No device selected \n\n Aborting Operation" --title="Aborted" --width=300 >/dev/null 2>&1
 
   exit 1
  

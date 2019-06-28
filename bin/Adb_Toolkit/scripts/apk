@@ -10,18 +10,18 @@ elif  [ "$1" == "install" ]; then
   sed -i '1d' /tmp/devices.txt
   read -r stat < /tmp/devices.txt
   if [ "$stat" == "" ]; then
-    zenity --error --text="No devices connected" --title="No device" >/dev/null 2>&1
+    zenity --error --text="No devices connected" --title="No device" --width=300 >/dev/null 2>&1
   else
   dl=$(sed 's/\device//g' /tmp/devices.txt)
-  device=$(zenity --list --text="Choose a device" --column="Devices" $dl 2>/dev/null) 
+  device=$(zenity --list --text="Choose a device" --column="Devices" $dl --width=300 --height=200  2>/dev/null) 
 
 if  [ "$?" -eq 1 ]; then
 
-  zenity --error --text="Operation cancelled" --title="Aborted" >/dev/null 2>&1
+  zenity --error --text="Operation cancelled" --title="Aborted" --width=300 >/dev/null 2>&1
     exit 1
 
     elif [ "$device" == "" ]; then
-      zenity --error --text="No device selected \n\n Aborting operation" --title="Aborted" >/dev/null 2>&1
+      zenity --error --text="No device selected \n\n Aborting operation" --title="Aborted" --width=300 >/dev/null 2>&1
       exit 1
 
       else
@@ -50,11 +50,12 @@ apk=$(zenity \
   --title="Apk install" \
   --text="Initializing" \
   --percentage=0 \
+  --width=300 \
   2>/dev/null
  )
   clear
     else
-    zenity --error --text="Please select a valid file" --title="Error" >/dev/null 2>&1
+    zenity --error --text="Please select a valid file" --title="Error" --width=300 >/dev/null 2>&1
     fi 
     fi
     fi    
@@ -64,15 +65,15 @@ apk=$(zenity \
   adb devices>/tmp/devices.txt
   sed -i '1d' /tmp/devices.txt
   dl=$(sed 's/\device//g' /tmp/devices.txt)
-  device=$(zenity --list --text="Choose a device" --column="Devices" $dl 2>/dev/null)
+  device=$(zenity --list --text="Choose a device" --column="Devices" $dl --width=300 --height=200 2>/dev/null)
 
 if  [ "$?" -eq 1 ]; then
 
-  zenity --error --text="Operation cancelled" --title="Aborted" >/dev/null 2>&1
+  zenity --error --text="Operation cancelled" --title="Aborted" --width=300 >/dev/null 2>&1
     exit 1
 
     elif [ "$device" == "" ]; then
-      zenity --error --text="No device selected \n\n Aborting operation" --title="Aborted" >/dev/null 2>&1
+      zenity --error --text="No device selected \n\n Aborting operation" --title="Aborted" --width=300 >/dev/null 2>&1
       exit 1
 
       else
@@ -107,20 +108,18 @@ dir=$( zenity \
 
     if  [ "$?" -eq 1 ]; then
 
-    zenity --error --text="No directory selected \n\n Aborting" >/dev/null 2>&1
+    zenity --error --text="No directory selected \n\n Aborting" --width=300 >/dev/null 2>&1
 exit 1    
 
 else
-
+  
 while :
     do
-
-
-name=$(zenity \
+      name=$(zenity \
     --entry \
     --text="Type in Apk Name" \
     --entry-text="$fres" \
-    --title="APK" --width=200 \
+    --title="APK" --width=300 \
     --height=200 \
     2>/dev/null                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
     )
@@ -129,15 +128,13 @@ name=$(zenity \
       exit 1
     else
     case $name in
-"${name%[[:space:]]*}") adb -s $device pull $f_trim $dir/$name.apk && zenity --info --text="Sucessfully pulled $name.apk to $dir" --width=100 2>/dev/null && exit 0
+"${name%[[:space:]]*}") adb -s $device pull $f_trim $dir/$name.apk && zenity --info --text="Sucessfully pulled $name.apk to $dir" --width=300 2>/dev/null && exit 0
 ;;
-"") zenity --error --text="App name cannot be null \n \n Aborting Operation" >/dev/null 2>&1;;
-*) zenity --error --text="Spaces are not allowed in apk name" >/dev/null 2>&1;;
+"") zenity --error --text="App name cannot be null \n \n Aborting Operation" --width=300 >/dev/null 2>&1;;
+*) zenity --error --text="Spaces are not allowed in apk name" --width=300 >/dev/null 2>&1;;
 esac
 fi
 done
-
 fi
-
 fi
 fi

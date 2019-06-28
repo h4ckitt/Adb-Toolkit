@@ -27,14 +27,14 @@ prwd=`pwd`
 	cp $prwd/bin/toolkit /bin/
 	echo "50"
 	echo "# Validating program files"
-	if ! [ -d /usr/share/Adb_Toolkit/ ] && [ -f /usr/share/Adb_Toolkit/Adb-Toolkit ]; then
+	if ! [ -d /usr/share/Adb_Toolkit/ ] || [ ! -f /usr/share/Adb_Toolkit/Adb-Toolkit ]; then
 		zenity --error --text="Installation Aborted \n\nProgram files couldn't be validated" --title="Abort" --width=500 2>/dev/null
 		exit 0
 	else		
 		echo "Program files validated"; sleep 4
 		echo "75"
 		echo "# Validating toolkit" ; sleep 2
-		if ! [ -f /bin/toolkit ] && [ "`tail -n 1 /bin/toolkit`" == "exec /usr/share/Adb_Toolkit/Adb-Toolkit" ]; then
+		if ! [ -f /bin/toolkit ] || [ "`tail -n 1 /bin/toolkit`" != "exec /usr/share/Adb_Toolkit/Adb-Toolkit" ]; then
 			zenity --error --text="Installation Aborted \n\nToolkit couldn't be validated" --title="Abort" --width=500 2>/dev/null
 			exit 1
 		else

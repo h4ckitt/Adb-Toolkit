@@ -32,15 +32,18 @@ z=$(sed -n -e "$(wc -l < "$tmp")p" "$tmp")
 rm "$tmp"
 z=$(tr -d '|' <<<"$z")
 if [ "$z" == ".." ]; then
-        z+=/
+  if [ "$type" == "dir" ]; then
+        z+=/      
+      fi
 fi
-z=$(printf '%q' "$z")
+#z=$(printf '%q' "$z")
 if [ "$(echo "${z: -1}")" != "/" ]; then
-eval y+="/""$z"
+y+="/""$(printf '%q' "$z")"
 else
-    eval y+="$z"
+y+="$(printf '%q' "$z")"
 fi
 if [ $ch -eq 1 ]; then
+    eval y=$y
     break
 elif [ $ch -eq 2 ]; then  
     zenity --error --text="No folder selected \n\n Aborting operation" --title="No file selected" >/dev/null 2>&1

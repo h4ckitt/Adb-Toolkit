@@ -30,14 +30,15 @@ clear
   echo "  1 - Send Zip to Device "
   echo "  2 - Install APK"
   echo "  3 - Send Files to device"
-  echo "  4 - Reboot Device"
-  echo "  5 - Reboot Device to Recovery"
-  echo "  6 - Reboot Device to Bootloader"
-  echo "  7 - Flash Recovery"
-  echo "  8 - Flash and Boot Recovery" 
-  echo "  9 - Send Folder"
+  echo "  4 - Send Folder"
+  echo "  5 - Change Device DPI"
+  echo "  6 - View Device DPI"
+  echo "  7 - Disable Heads Up Notifications"
+  echo "  8 - Enable Heads Up Notifications" 
+  echo "  9 - Get apk from installed application"
+  echo "  10 - Pull File From Device"
   echo
-  echo "  10- ADVANCED OPTIONS"
+  echo "  11- ADVANCED OPTIONS"
   echo
   echo "  s - Drop to shell"
   echo "  u - Adb-Toolkit Info/Donate"
@@ -57,20 +58,21 @@ clear
   if [ "$?" != "1" ]
   then
     case $opt in
-    1) /usr/share/Adb_Toolkit/scripts/send_zip; continue;;
-    2) /usr/share/Adb_Toolkit/scripts/apk install; continue;;
-    3) /usr/share/Adb_Toolkit/scripts/send_files all_files; continue;;
-    4) /usr/share/Adb_Toolkit/scripts/reboot reboot_os; continue;;
-    5) /usr/share/Adb_Toolkit/scripts/reboot reboot_recovery; continue;;
-    6) /usr/share/Adb_Toolkit/scripts/reboot reboot_bootloader; continue;;
-    7) /usr/share/Adb_Toolkit/scripts/flash flash_recovery; continue;;
-    8) /usr/share/Adb_Toolkit/scripts/flash flash_boot; continue;;
-    9) /usr/share/Adb_Toolkit/scripts/send_files directory; continue;;
-    10) /usr/share/Adb_Toolkit/scripts/advanced_menu; continue;;
-    s) /usr/share/Adb_Toolkit/scripts/shell; continue;;
-    u) /usr/share/Adb_Toolkit/scripts/about ; continue;;
-    x) clear; adb kill-server 2>/dev/null; echo; echo "Goodbye.";echo;exit 1;;
-    *) /usr/share/Adb_Toolkit/scripts/invalid_option; continue;;
+    1) ./scripts/send_zip; continue;;
+    2) ./scripts/apk install; continue;;
+    3) ./scripts/file_op all_files; continue;;
+    4) ./scripts/file_op directory; continue;;
+    5) ./scripts/dpi change; continue;;
+    6) ./scripts/dpi view; continue;;
+    7) ./scripts/heads_up disable; continue;;
+    8) ./scripts/heads_up enble; continue;;
+    9) ./scripts/apk extract; continue;;
+   10) ./scripts/file_op pull; continue;;
+   11) ./scripts/advanced_menu; continue;;
+    s) ./scripts/shell; continue;;
+    u) ./scripts/about ; continue;;
+    x) clear; adb kill-server 2>/dev/null; echo; echo "Goodbye.";echo;exit 0;;
+    *) ./scripts/invalid_option; continue;;
     esac 
    
     fi

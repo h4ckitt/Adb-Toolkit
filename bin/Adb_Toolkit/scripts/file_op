@@ -80,10 +80,10 @@ adb start-server 2>/dev/null
     IFS='|'; for i in $dev; do
       if [ "$i" != "" ]; then
       x+=("$(sed 's/[[:space:]].*//g' <<<$i)")
-      if [ "$(grep -o -w unauthorized <<<$i)" == "unauthorized" ]; then
-        x+=("unauthorized")
-      else
+      if [ "$(grep -o -w device <<<$i)" == "device" ]; then
         x+=("authorized")
+      else
+        x+=("$(sed 's/.*[[:space:]]//g' <<<$i)")
       fi
       else continue
     fi
@@ -91,13 +91,7 @@ adb start-server 2>/dev/null
   done < /tmp/devices.txt
   #dl=$(sed 's/\device//g' /tmp/devices.txt)
   device=$(yad --list --text="Choose a device" --column="Devices" --column="Status" ${x[@]} --print-column=1 --no-click --center --width=300 --height=200  2>/dev/null)
-  ch=$?
-  device=$(tr -d '|' <<<$device)
-  get_index "$device" "${x[@]}"
-  if [ "${x[$((index + 1))]}" == "unauthorized" ]; then
-    zenity --error --text="Selected Device Is Not Authorized \nPlease Allow USB Debugging From This PC On Your Device\n\nOperation Aborted" --title="Aborted" --width=500 >/dev/null 2>&1
-    exit 1
-  fi
+  
 if  [ "$?" -eq 1 ]; then
 
   zenity --error --text="Operation cancelled" --title="Aborted" --width=300 >/dev/null 2>&1
@@ -110,7 +104,12 @@ if  [ "$?" -eq 1 ]; then
   exit 1
  
  else
-
+  device=$(tr -d '|' <<<$device)
+  get_index "$device" "${x[@]}"
+  if [ "${x[$((index + 1))]}" != "authorized" ]; then
+    zenity --error --text="Selected Device Is Not Authorized \nPlease Allow USB Debugging From This PC On Your Device\n\nOperation Aborted" --title="Aborted" --width=500 >/dev/null 2>&1
+    exit 1
+  fi
 if  [ "$1" == "" ]; then
 zenity --error --text="Run this file from the main script" --title="Invalid run location" --width=300 >/dev/null 2>&1
 

@@ -15,14 +15,12 @@ adb start-server 2>/dev/null
                         return
                 fi
        done
-}
-  if [ "$(wc -l < /tmp/devices.txt)" != "1" ]; then
-  tr '\n' '|' < /tmp/devices.txt >/tmp/derv
-fi
+}  
   x=()
   read -r stat < /tmp/devices.txt
   if [ "$stat" == "" ]; then
     zenity --error --text="No devices connected" --title="No device" --width=300 >/dev/null 2>&1
+    exit 1
   else
     while read -r dev || [[ -n $dev ]]; do
     IFS='|'; for i in $dev; do
@@ -33,9 +31,10 @@ fi
       else
         x+=("authorized")
       fi
+      else continue
     fi
     done
-  done < /tmp/derv
+  done < /tmp/devices.txt
   #dl=$(sed 's/\device//g' /tmp/devices.txt)
   device=$(yad --list --text="Choose a device" --column="Devices" --column="Status" ${x[@]} --print-column=1 --no-click --center --width=300 --height=200  2>/dev/null)
   ch=$?

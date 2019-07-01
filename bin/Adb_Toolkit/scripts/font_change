@@ -118,10 +118,7 @@ elif  [ "$1" == "change_font" ]; then
                         return
                 fi
        done
-}
-  if [ "$(wc -l < /tmp/devices.txt)" != "1" ]; then
-  tr '\n' '|' < /tmp/devices.txt >/tmp/derv
-fi
+}  
   x=()
   read -r stat < /tmp/devices.txt
   if [ "$stat" == "" ]; then
@@ -136,9 +133,10 @@ fi
       else
         x+=("authorized")
       fi
+      else continue
     fi
     done
-  done < /tmp/derv
+  done < /tmp/devices.txt
   #dl=$(sed 's/\device//g' /tmp/devices.txt)
   device=$(yad --list --text="Choose a device" --column="Devices" --column="Status" ${x[@]} --print-column=1 --no-click --center --width=300 --height=200  2>/dev/null)
   ch=$?

@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 
 adb start-server 2>/dev/null
   adb devices>/tmp/devices.txt
@@ -20,6 +20,7 @@ adb start-server 2>/dev/null
   read -r stat < /tmp/devices.txt
   if [ "$stat" == "" ]; then
     zenity --error --text="No devices connected" --title="No device" --width=300 >/dev/null 2>&1
+    exit 1
   else
      tr -d '\n' '|' < /tmp/devices.txt >/tmp/devices.txt
     while read -r dev || [[ -n $dev ]]; do

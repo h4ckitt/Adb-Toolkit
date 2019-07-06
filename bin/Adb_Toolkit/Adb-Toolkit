@@ -58,21 +58,21 @@ clear
   if [ "$?" != "1" ]
   then
     case $opt in
-    1) ./scripts/send_zip; continue;;
-    2) ./scripts/apk install; continue;;
-    3) ./scripts/file_op all_files; continue;;
-    4) ./scripts/file_op directory; continue;;
-    5) ./scripts/dpi change; continue;;
-    6) ./scripts/dpi view; continue;;
-    7) ./scripts/heads_up disable; continue;;
-    8) ./scripts/heads_up enble; continue;;
-    9) ./scripts/apk extract; continue;;
-   10) ./scripts/file_op pull; continue;;
-   11) ./scripts/advanced_menu; continue;;
-    s) ./scripts/shell; continue;;
-    u) ./scripts/about ; continue;;
+    1) /usr/share/Adb_Toolkit/scripts/send_zip; continue;;
+    2) /usr/share/Adb_Toolkit/scripts/apk install; continue;;
+    3) /usr/share/Adb_Toolkit/scripts/file_op all_files; continue;;
+    4) /usr/share/Adb_Toolkit/scripts/file_op directory; continue;;
+    5) /usr/share/Adb_Toolkit/scripts/dpi change; continue;;
+    6) /usr/share/Adb_Toolkit/scripts/dpi view; continue;;
+    7) /usr/share/Adb_Toolkit/scripts/heads_up disable; continue;;
+    8) /usr/share/Adb_Toolkit/scripts/heads_up enble; continue;;
+    9) /usr/share/Adb_Toolkit/scripts/apk extract; continue;;
+   10) /usr/share/Adb_Toolkit/scripts/file_op pull; continue;;
+   11) /usr/share/Adb_Toolkit/scripts/advanced_menu; continue;;
+    s) /usr/share/Adb_Toolkit/scripts/shell; continue;;
+    u) /usr/share/Adb_Toolkit/scripts/about ; continue;;
     x) clear; adb kill-server 2>/dev/null; echo; echo "Goodbye.";echo;exit 0;;
-    *) ./scripts/invalid_option; continue;;
+    *) /usr/share/Adb_Toolkit/scripts/invalid_option; continue;;
     esac 
    
     fi

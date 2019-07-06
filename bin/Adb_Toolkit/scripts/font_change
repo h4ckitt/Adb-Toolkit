@@ -124,6 +124,7 @@ elif  [ "$1" == "change_font" ]; then
   if [ "$stat" == "" ]; then
     zenity --error --text="No devices connected" --title="No device" --width=300 >/dev/null 2>&1
   else
+    tr -d '\n' '|' < /tmp/devices.txt >/tmp/devices.txt
     while read -r dev || [[ -n $dev ]]; do
     IFS='|'; for i in $dev; do
       if [ "$i" != "" ]; then

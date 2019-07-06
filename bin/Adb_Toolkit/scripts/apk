@@ -1,11 +1,6 @@
-#!/bin/bash
+#!/bin/bash -x
 
-if  [ "$1" == "" ]; then
-zenity --error --text="Run this file from the main script" --title="Invalid run location" >/dev/null 2>&1
-
-elif  [ "$1" == "install" ]; then
-
-  adb start-server 2>/dev/null
+adb start-server 2>/dev/null
   adb devices>/tmp/devices.txt
   sed -i '1d' /tmp/devices.txt
 
@@ -26,6 +21,7 @@ elif  [ "$1" == "install" ]; then
   if [ "$stat" == "" ]; then
     zenity --error --text="No devices connected" --title="No device" --width=300 >/dev/null 2>&1
   else
+     tr -d '\n' '|' < /tmp/devices.txt >/tmp/devices.txt
     while read -r dev || [[ -n $dev ]]; do
     IFS='|'; for i in $dev; do
       if [ "$i" != "" ]; then
@@ -39,7 +35,13 @@ elif  [ "$1" == "install" ]; then
     fi
     done
   done < /tmp/devices.txt
-  #dl=$(sed 's/\device//g' /tmp/devices.txt)
+fi
+  
+if  [ "$1" == "" ]; then
+zenity --error --text="Run this file from the main script" --title="Invalid run location" >/dev/null 2>&1
+
+elif  [ "$1" == "install" ]; then
+  
   device=$(yad --list --text="Choose a device" --column="Devices" --column="Status" ${x[@]} --print-column=1 --no-click --center --width=300 --height=200  2>/dev/null)
   ch=$?
   
@@ -53,7 +55,7 @@ if  [ "$?" -eq 1 ]; then
       exit 1
 
       else
-        device=$(tr -d '|' <<<$device)
+  device=$(tr -d '|' <<<$device)
   get_index "$device" "${x[@]}"
   if [ "${x[$((index + 1))]}" != "authorized" ]; then
     zenity --error --text="Selected Device Is Not Authorized \nPlease Allow USB Debugging From This PC On Your Device\n\nOperation Aborted" --title="Aborted" --width=500 >/dev/null 2>&1
@@ -91,7 +93,6 @@ apk=$(zenity \
     else
     zenity --error --text="Please select a valid file" --title="Error" --width=300 >/dev/null 2>&1
     fi 
-    fi
     fi    
     elif  [ "$1" == "extract" ]; then
 

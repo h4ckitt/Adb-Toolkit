@@ -1,0 +1,139 @@
+#!/bin/bash
+
+
+error_handler(){
+  zenity --error --text="$reason" --title="Error" --width=200 >/dev/null 2>&1
+  exit 1
+}
+
+if [ "$1" == "" ]; then
+  zenity --error --text="Run this file from the main script" --title="Invalid run location" --width=300 >/dev/null 2>&1
+
+elif  [ "$1" == "change" ]; then
+
+  adb start-server 2>/dev/null
+  adb devices>/tmp/devices.txt
+  sed -i '1d' /tmp/devices.txt
+
+  get_index(){
+        local value="$1"
+        shift
+        local arr=("$@")
+        for j in "${!arr[@]}";
+        do
+                if [[ "${arr[$j]}" == "${value}" ]]; then
+                        index="${j}"
+                        return
+                fi
+       done
+}  
+  x=()
+  read -r stat < /tmp/devices.txt
+  if [ "$stat" == "" ]; then
+    zenity --error --text="No devices connected" --title="No device" --width=300 >/dev/null 2>&1
+    exit 1
+  else    
+    while read -r dev || [[ -n $dev ]]; do      
+      x+=("$(sed 's/[[:space:]].*//g' <<<$dev)")
+      if [ "$(grep -o -w device <<<$dev)" == "device" ]; then
+        x+=("authorized")
+      else
+        x+=("$(sed 's/.*[[:space:]]//g' <<<$dev)")
+      fi       
+  done < /tmp/devices.txt    
+fi
+  device=$(yad --list --text="Choose a device" --column="Devices" --column="Status" ${x[@]} --print-column=1 --no-click --center --width=300 --height=200  2>/dev/null)
+  
+if  [ "$?" -eq 1 ]; then
+
+  zenity --error --text="Operation cancelled" --title="Aborted" --width=300 >/dev/null 2>&1
+    exit 1
+
+    elif [ "$device" == "" ]; then
+      zenity --error --text="No device selected \n\n Aborting operation" --title="Aborted" --width=300 >/dev/null 2>&1
+      exit 1
+
+      else      
+        device=$(tr -d '|' <<<$device)
+  get_index "$device" "${x[@]}"
+  if [ "${x[$((index + 1))]}" != "authorized" ]; then
+    zenity --error --text="Selected Device Is Not Authorized \nPlease Allow USB Debugging From This PC On Your Device\n\nOperation Aborted" --title="Aborted" --width=500 >/dev/null 2>&1
+    exit 1
+  fi
+  (echo "10" ; sleep 1
+    echo "# Detecting Device" ; sleep 1
+    adb -s $device wait-for-device
+    echo "20" ; sleep 1
+    echo "# Device detected" ; sleep 1
+    echo "50" ; sleep 1
+    echo "# Checking for root access on device" ; sleep 1
+    echo "su" | adb -s $device shell > /tmp/is_root 2>&1
+    read -r root < /tmp/is_root
+    if [ "$root" != "" ]; then
+      reason="Root access wasn't found \n\nPlease make sure you grant ADB root access if your device is rooted"
+      error_handler
+      echo "# Aborted"
+      exit 1
+    else
+      echo "# Root access confirmed"; sleep 1
+      echo "55" ; sleep 1
+      echo "# Opening file browser"
+       echo "59" ; sleep 1
+      boot=$(zenity --file-selection --file-filter="Zip | *.zip" 2>/dev/null)
+      if [ "$?" != "0" ] ; then
+        reason="User Aborted the operation" 
+        error_handler       
+        echo "# Aborted"
+        exit 1
+      fi
+      if [ "$boot" != "" ]; then
+          bootanim="${boot##*/}" 
+          echo "# Remounting system partition"
+          echo "mount -o remount,rw /system" | adb -s $device shell su
+          echo "# Backing up original bootanimation" ; sleep 5
+          echo "60" ; sleep 1
+          echo "if ! [ -f /system/media/bootanimation.zip.bak ]; then echo yes;fi" | adb shell > /tmp/sek
+          read -r sek < /tmp/sek
+          if [ "$sek" == "yes" ]; then
+          echo "mv /system/media/bootanimation.zip /system/media/bootanimation.zip.bak" | adb -s $device shell su
+        fi
+          echo "# Changing device bootanimation" ; sleep 1
+          echo "70" ; sleep 5
+          adb -s $device push "$boot" /sdcard/
+          sleep 5
+          echo "mv /sdcard/$bootanim /system/media/bootanimation.zip" | adb -s $device shell su
+          echo "chmod 644 /system/media/bootanimation.zip" | adb -s $device shell su
+          echo "# bootanimation Changed" ; sleep 2            
+          echo "# Done"
+          echo "100"          
+          else
+            reason="No font selected, aborting operation"
+            error_handler
+            echo "# Aborted"
+            exit 0
+          fi
+        fi        
+        ) | zenity \
+            --progress \
+            --title="Changing Font" \
+            --text="Initializing" \
+            --percentage=0 \
+            --pulsate \
+            --width=300 \
+            --auto-close 2>/dev/null
+
+            if [ "$?" != "0" ]; then
+              reason="User aborted the operation"
+              error_handler             
+              exit 1
+            fi
+            yad --center --image dialog-question --text="Bootanimation Changed Successfully \n\nReboot To See Changes?" --button="gtk-yes:0" --button="gtk-no:1" 2>/dev/null
+            if [ $? -eq 0 ]; then
+              adb -s $device reboot
+              yad --center --image face-wink --text="Device Rebooted \n\nEnjoy Your New Bootanimation" --button="gtk-ok" 2>/dev/null
+              exit 1
+            else
+              yad --center --image face-smile-big --text="Enjoy Your New Bootanimation" --button="gtk-ok" 2>/dev/null
+            fi
+          fi
+        fi

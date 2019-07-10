@@ -1,0 +1,8 @@
+#!/bin/bash
+
+rm /tmp/devices.txt
+if [ -f /tmp/is_root ]; then
+	rm /tmp/is_root
+elif [ -f /tmp/sek ]; then
+	rm /tmp/sek
+fi
